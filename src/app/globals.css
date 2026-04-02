@@ -1,26 +1,263 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
+/* ============================================================
+   TakeOff Design System — Design Tokens
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ------------------------------------------------------------------
+     Brand Scale
+     ------------------------------------------------------------------ */
+  --brand-0: #f2f4f7;
+  --brand-100: #e9ebf0;
+  --brand-200: #dadce3;
+  --brand-600: #2a2c31;
+
+  /* ------------------------------------------------------------------
+     Background — Semantic
+     ------------------------------------------------------------------ */
+  --bg-default: #ffffff;
+  --bg-disabled: #dadce3;
+  --bg-brand-primary: #2a2c31;
+  --bg-brand-secondary: #e9ebf0;
+  --bg-brand-tertiary: #f2f4f7;
+  --bg-brand-hover: #6f737a;
+  --bg-brand-pressed: #191c24;
+
+  --bg-green-primary: #52ab32;
+  --bg-green-secondary: #c4f0b1;
+  --bg-green-tertiary: #e3f7da;
+
+  --bg-yellow-primary: #f0b113;
+  --bg-yellow-secondary: #ffefc4;
+  --bg-yellow-tertiary: #fff5db;
+
+  --bg-red-primary: #e54829;
+  --bg-red-secondary: #ffd0c7;
+  --bg-red-tertiary: #ffe5e0;
+
+  --bg-turquoise-primary: #369ea8;
+  --bg-turquoise-secondary: #bee8ed;
+  --bg-turquoise-tertiary: #d5eff2;
+
+  --bg-orange-primary: #e57e17;
+  --bg-orange-secondary: #ffe7cf;
+  --bg-orange-tertiary: #fff1e3;
+
+  --bg-neutral-primary: #546483;
+  --bg-neutral-secondary: #d0dcf7;
+  --bg-neutral-tertiary: #f5f8ff;
+
+  /* ------------------------------------------------------------------
+     Outline
+     ------------------------------------------------------------------ */
+  --outline-brand: #2a2c31;
+  --outline-primary: #bdc1c9;
+  --outline-secondary: #dadce3;
+  --outline-inverse: #ffffff;
+  --outline-green-primary: #52ab32;
+  --outline-green-secondary: #aae593;
+  --outline-yellow-primary: #f0b113;
+  --outline-yellow-secondary: #fce3a2;
+  --outline-red-primary: #e54829;
+  --outline-red-secondary: #fcb1a2;
+  --outline-turquoise-primary: #369ea8;
+  --outline-turquoise-secondary: #a0e1e8;
+  --outline-neutral-primary: #546483;
+  --outline-neutral-secondary: #aebfe5;
+
+  /* ------------------------------------------------------------------
+     Text
+     ------------------------------------------------------------------ */
+  --text-primary: #2a2c31;
+  --text-secondary: #6f737a;
+  --text-inverse: #ffffff;
+  --text-green: #256e0b;
+  --text-yellow: #8f6600;
+  --text-red: #992008;
+  --text-turquoise: #146d75;
+  --text-neutral: #21293b;
+
+  /* ------------------------------------------------------------------
+     Icon
+     ------------------------------------------------------------------ */
+  --icon-primary: #2a2c31;
+  --icon-secondary: #6f737a;
+  --icon-tertiary: #bdc1c9;
+  --icon-inverse: #ffffff;
+  --icon-green: #52ab32;
+  --icon-yellow: #f0b113;
+  --icon-red: #e54829;
+  --icon-turquoise: #369ea8;
+  --icon-neutral: #546483;
+
+  /* ------------------------------------------------------------------
+     Mapped Aliases (consumed by components)
+     ------------------------------------------------------------------ */
+  --shell-bg: var(--brand-600);
+  --shell-text: var(--icon-tertiary);
+  --shell-text-active: var(--text-inverse);
+  --shell-accent: var(--bg-turquoise-primary);
+  --shell-hover: var(--bg-brand-pressed);
+
+  --canvas-bg: var(--brand-0);
+  --canvas-surface: var(--bg-default);
+  --canvas-surface-raised: var(--bg-default);
+  --canvas-border: var(--outline-primary);
+  --canvas-border-subtle: var(--brand-100);
+
+  --text-tertiary: var(--icon-tertiary);
+
+  --accent-primary: var(--bg-turquoise-primary);
+  --accent-primary-soft: var(--bg-turquoise-tertiary);
+  --accent-primary-hover: var(--bg-turquoise-primary);
+
+  --positive: var(--bg-green-primary);
+  --positive-soft: var(--bg-green-tertiary);
+  --positive-text: var(--text-green);
+  --negative: var(--bg-red-primary);
+  --negative-soft: var(--bg-red-tertiary);
+  --negative-text: var(--text-red);
+  --warning: var(--bg-yellow-primary);
+  --warning-soft: var(--bg-yellow-tertiary);
+  --warning-text: var(--text-yellow);
+  --info: var(--bg-turquoise-primary);
+  --info-soft: var(--bg-turquoise-tertiary);
+  --info-text: var(--text-turquoise);
+
+  /* AI — uses Lavender from data-viz palette */
+  --ai-accent: #6a5acd;
+  --ai-accent-soft: #e8e4f8;
+  --ai-accent-hover: #5a4abf;
+  --ai-surface: #f5f3fc;
+  --ai-border: #d5d0ed;
+
+  /* ------------------------------------------------------------------
+     Activity Colors (Data Visualization palette)
+     ------------------------------------------------------------------ */
+  --activity-receiving: #4b91d1;    /* Pacific bold */
+  --activity-putaway: #7b8bc4;      /* Sky Mist bold */
+  --activity-picking: #c9a04f;      /* Sunset neutral */
+  --activity-packing: #52ab32;      /* Green primary */
+  --activity-loading: #e54829;      /* Red primary */
+  --activity-fixed: #9b7ec8;        /* Lavender neutral */
+  --activity-reserve: #546483;      /* Neutral primary */
+
+  /* ------------------------------------------------------------------
+     Roster States
+     ------------------------------------------------------------------ */
+  --roster-assigned: var(--bg-turquoise-primary);
+  --roster-off: var(--brand-200);
+  --roster-training: #6a5acd;
+  --roster-leave: var(--bg-yellow-primary);
+  --roster-reserve: var(--bg-neutral-primary);
+  --roster-conflict: var(--bg-red-primary);
+  --roster-unassigned: var(--brand-100);
+
+  /* ------------------------------------------------------------------
+     Spacing Scale
+     ------------------------------------------------------------------ */
+  --space-2xs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 40px;
+  --space-4xl: 48px;
+  --space-5xl: 64px;
+
+  /* ------------------------------------------------------------------
+     Radius Scale
+     ------------------------------------------------------------------ */
+  --radius-2xs: 2px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-xl: 24px;
+
+  /* ------------------------------------------------------------------
+     Elevation / Shadows
+     ------------------------------------------------------------------ */
+  --elevation-100: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.10);
+  --elevation-200: 0 2px 4px rgba(67, 90, 111, 0.24);
+  --elevation-300: 0 4px 6px rgba(66, 66, 66, 0.18);
+  --elevation-400: 0 8px 10px rgba(0, 0, 0, 0.14);
+  --elevation-500: 0 8px 16px rgba(0, 0, 0, 0.20);
 }
 
+/* ------------------------------------------------------------------
+   Tailwind v4 Theme Mapping
+   ------------------------------------------------------------------ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--canvas-bg);
+  --color-foreground: var(--text-primary);
+  --font-sans: "Roboto", system-ui, -apple-system, sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ------------------------------------------------------------------
+   Base Styles
+   ------------------------------------------------------------------ */
+* { box-sizing: border-box; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas-bg);
+  color: var(--text-primary);
+  font-family: "Roboto", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  height: 100vh;
 }
+
+/* ------------------------------------------------------------------
+   Typography Utility Classes (TakeOff DS Type Scale)
+   ------------------------------------------------------------------ */
+
+/* Headings — Roboto Semibold (600) */
+.heading-2xl { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 32px; line-height: 40px; }
+.heading-xl  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 24px; line-height: 32px; }
+.heading-lg  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 20px; line-height: 24px; }
+.heading-md  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 16px; line-height: 20px; }
+.heading-sm  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; }
+
+/* Body — Roboto Regular (400) */
+.body-sm { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 12px; line-height: 16px; }
+.body-md { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; }
+.body-lg { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 16px; line-height: 24px; }
+
+/* Labels — Roboto Mono Medium (500), UPPERCASE */
+.label-sm { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 12px; line-height: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+.label-md { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 14px; line-height: 16px; text-transform: uppercase; letter-spacing: 0.04em; }
+.label-lg { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 16px; line-height: 16px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Actions — Roboto Bold (700) */
+.action-xs { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 10px; line-height: 14px; }
+.action-sm { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 12px; line-height: 16px; }
+.action-md { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 14px; line-height: 20px; }
+.action-lg { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 16px; line-height: 24px; }
+
+/* ------------------------------------------------------------------
+   Tabular Numerals
+   ------------------------------------------------------------------ */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------------
+   Scrollbar
+   ------------------------------------------------------------------ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--outline-primary); border-radius: var(--radius-xs); }
+::-webkit-scrollbar-thumb:hover { background: var(--icon-secondary); }
+
+/* ------------------------------------------------------------------
+   Chart Overrides (Recharts)
+   ------------------------------------------------------------------ */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--text-secondary) !important;
+  font-size: 11px !important;
+  font-family: "Roboto", sans-serif !important;
+}
+.recharts-tooltip-wrapper { outline: none !important; }
