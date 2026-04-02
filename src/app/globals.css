@@ -268,6 +268,7 @@ body {
   background: var(--canvas-bg);
   color: var(--text-primary);
   font-family: "Roboto", system-ui, -apple-system, sans-serif;
+  font-kerning: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
@@ -279,27 +280,27 @@ body {
    ------------------------------------------------------------------ */
 
 /* Headings — Roboto Semibold (600) */
-.heading-2xl { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 32px; line-height: 40px; }
-.heading-xl  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 24px; line-height: 32px; }
-.heading-lg  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 20px; line-height: 24px; }
-.heading-md  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 16px; line-height: 20px; }
-.heading-sm  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; }
+.heading-2xl { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 2rem; line-height: 2.5rem; letter-spacing: -0.0125em; }
+.heading-xl  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 1.5rem; line-height: 2rem; letter-spacing: -0.01em; }
+.heading-lg  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 1.25rem; line-height: 1.5rem; letter-spacing: -0.005em; }
+.heading-md  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 1rem; line-height: 1.25rem; }
+.heading-sm  { font-family: "Roboto", sans-serif; font-weight: 600; font-size: 0.9375rem; line-height: 1.25rem; }
 
 /* Body — Roboto Regular (400) */
-.body-sm { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 12px; line-height: 16px; }
-.body-md { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; }
-.body-lg { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 16px; line-height: 24px; }
+.body-sm { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 0.8125rem; line-height: 1.125rem; }
+.body-md { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 0.9375rem; line-height: 1.25rem; }
+.body-lg { font-family: "Roboto", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5rem; }
 
 /* Labels — Roboto Mono Medium (500), UPPERCASE */
-.label-sm { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 12px; line-height: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-.label-md { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 14px; line-height: 16px; text-transform: uppercase; letter-spacing: 0.04em; }
-.label-lg { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 16px; line-height: 16px; text-transform: uppercase; letter-spacing: 0.04em; }
+.label-sm { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 0.6875rem; line-height: 0.875rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.label-md { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 0.8125rem; line-height: 1rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.label-lg { font-family: "Roboto Mono", monospace; font-weight: 500; font-size: 0.9375rem; line-height: 1rem; text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* Actions — Roboto Bold (700) */
-.action-xs { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 10px; line-height: 14px; }
-.action-sm { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 12px; line-height: 16px; }
-.action-md { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 14px; line-height: 20px; }
-.action-lg { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 16px; line-height: 24px; }
+.action-xs { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 0.6875rem; line-height: 0.875rem; letter-spacing: 0.02em; }
+.action-sm { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 0.75rem; line-height: 1rem; letter-spacing: 0.01em; }
+.action-md { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 0.875rem; line-height: 1.25rem; }
+.action-lg { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 1rem; line-height: 1.5rem; }
 
 /* ------------------------------------------------------------------
    Tabular Numerals
@@ -323,3 +324,56 @@ body {
   font-family: "Roboto", sans-serif !important;
 }
 .recharts-tooltip-wrapper { outline: none !important; }
+
+/* ------------------------------------------------------------------
+   Delight Layer (subtle, professional micro-interactions)
+   ------------------------------------------------------------------ */
+.delight-press {
+  transition:
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+.delight-press:hover {
+  transform: translateY(-1px);
+}
+
+.delight-press:active {
+  transform: translateY(0);
+}
+
+.delight-card {
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease;
+}
+
+.delight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elevation-200);
+}
+
+.delight-focus:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--canvas-surface),
+    0 0 0 4px var(--accent-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .delight-press,
+  .delight-card {
+    transition: none !important;
+  }
+
+  .delight-press:hover,
+  .delight-press:active,
+  .delight-card:hover {
+    transform: none !important;
+  }
+}

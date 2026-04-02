@@ -45,7 +45,7 @@ export function TopBar() {
 
           <div className="hidden md:flex items-center gap-2 min-w-0">
             <button
-              className="flex items-center gap-1.5 px-2.5 py-1.5 body-sm"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 body-sm delight-press delight-focus"
               style={{
                 color: "var(--text-inverse)",
                 background: "rgba(255,255,255,0.08)",
@@ -58,7 +58,7 @@ export function TopBar() {
             </button>
 
             <button
-              className="flex items-center gap-1.5 px-2.5 py-1.5 body-sm"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 body-sm delight-press delight-focus"
               style={{
                 color: "var(--text-inverse)",
                 background: "rgba(255,255,255,0.08)",
@@ -75,7 +75,7 @@ export function TopBar() {
         <div className="flex items-center gap-1">
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-1.5 px-3 py-1.5 action-sm transition-colors hover:opacity-80"
+            className="flex items-center gap-1.5 px-3 py-1.5 action-sm delight-press delight-focus"
             style={{
               color: "var(--shell-text-active)",
               borderRadius: "var(--radius-sm)",
@@ -89,7 +89,7 @@ export function TopBar() {
           </button>
           <button
             onClick={toggleEvidence}
-            className="flex items-center gap-1.5 px-3 py-1.5 action-sm transition-colors hover:opacity-80"
+            className="flex items-center gap-1.5 px-3 py-1.5 action-sm delight-press delight-focus"
             style={{ color: "var(--shell-text-active)", borderRadius: "var(--radius-sm)" }}
           >
             <FileText size={14} />
@@ -97,7 +97,7 @@ export function TopBar() {
           </button>
           <button
             onClick={toggleAiRail}
-            className="flex items-center gap-1.5 px-3 py-1.5 action-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 action-sm delight-press delight-focus"
             style={{
               color: aiRailOpen ? "var(--text-inverse)" : "var(--shell-text-active)",
               background: aiRailOpen ? "var(--bg-turquoise-primary)" : undefined,

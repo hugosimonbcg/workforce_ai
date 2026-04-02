@@ -27,7 +27,7 @@ function InsightCard({ insight }: { insight: AIInsight }) {
 
   return (
     <div
-      className="p-3.5"
+      className="p-3.5 delight-card"
       style={{
         background: "var(--ai-surface)",
         border: "1px solid var(--ai-border)",
@@ -45,7 +45,7 @@ function InsightCard({ insight }: { insight: AIInsight }) {
           {typeLabels[insight.type]}
         </span>
       </div>
-      <h4 className="heading-sm mb-1.5" style={{ color: "var(--text-primary)", fontSize: "12px", lineHeight: "16px" }}>
+      <h4 className="heading-sm mb-1.5" style={{ color: "var(--text-primary)" }}>
         {insight.title}
       </h4>
       <div
@@ -134,7 +134,7 @@ export function CopilotRail() {
             style={{ borderBottom: "1px solid var(--outline-secondary)" }}
           >
             <Sparkles size={14} style={{ color: "var(--ai-accent)" }} />
-            <span className="heading-sm" style={{ color: "var(--text-primary)", fontSize: "13px" }}>
+            <span className="heading-sm" style={{ color: "var(--text-primary)" }}>
               AI Copilot
             </span>
             <span
@@ -162,7 +162,7 @@ export function CopilotRail() {
                 {prompts.map((prompt) => (
                   <button
                     key={prompt}
-                    className="flex items-center gap-2 px-3 py-2 text-left body-sm transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-left body-sm delight-press delight-focus"
                     style={{
                       border: "1px solid var(--ai-border)",
                       color: "var(--text-secondary)",
@@ -179,7 +179,7 @@ export function CopilotRail() {
           </div>
 
           <div className="px-3 py-2.5" style={{ borderTop: "1px solid var(--outline-secondary)" }}>
-            <p className="body-sm text-center" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>
+            <p className="body-sm text-center" style={{ color: "var(--text-secondary)" }}>
               Grounded in current scenario data · Deterministic outputs
             </p>
           </div>

@@ -17,7 +17,7 @@ const paddingMap = {
 export function SectionCard({ children, className, padding = "lg" }: SectionCardProps) {
   return (
     <div
-      className={cn(paddingMap[padding], className)}
+      className={cn(paddingMap[padding], "delight-card", className)}
       style={{
         background: "var(--canvas-surface)",
         borderRadius: "var(--radius-sm)",

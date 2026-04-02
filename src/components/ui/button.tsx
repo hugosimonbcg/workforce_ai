@@ -44,7 +44,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center gap-2 transition-opacity hover:opacity-80 disabled:opacity-40",
+          "inline-flex items-center justify-center gap-2 disabled:opacity-40 delight-press delight-focus",
           sizeClasses[size],
           className,
         )}

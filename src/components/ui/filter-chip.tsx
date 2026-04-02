@@ -14,7 +14,7 @@ export function FilterChip({ label, active, onClick, color, className }: FilterC
   return (
     <button
       onClick={onClick}
-      className={cn("action-sm px-2.5 py-1.5 transition-all", className)}
+      className={cn("action-sm px-2.5 py-1.5 delight-press delight-focus", className)}
       style={{
         borderRadius: "var(--radius-sm)",
         border: `1px solid ${active ? (color || "var(--accent-primary)") : "var(--outline-secondary)"}`,

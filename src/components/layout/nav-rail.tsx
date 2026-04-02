@@ -31,7 +31,7 @@ export function TopNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "relative flex items-center gap-2 px-3 py-2 transition-colors body-md",
+              "relative flex items-center gap-2 px-3 py-2 body-md delight-press delight-focus",
               isActive ? "font-medium" : "hover:opacity-80",
             )}
             style={{

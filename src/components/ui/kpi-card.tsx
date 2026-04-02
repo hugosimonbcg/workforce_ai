@@ -21,7 +21,7 @@ export function KPICard({ label, value, baseline, delta, deltaDirection = "neutr
 
   return (
     <div
-      className={cn("p-4", className)}
+      className={cn("p-4 delight-card", className)}
       style={{
         background: "var(--canvas-surface)",
         borderRadius: "var(--radius-sm)",

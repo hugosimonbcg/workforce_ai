@@ -123,7 +123,7 @@ export function EvidenceDrawer() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="body-sm font-medium" style={{ color: "var(--text-primary)" }}>{area.area}</span>
-                          <span className="label-sm" style={{ color: confidenceColors[area.level], fontSize: "10px" }}>
+                          <span className="label-sm" style={{ color: confidenceColors[area.level] }}>
                             {area.level}
                           </span>
                         </div>
