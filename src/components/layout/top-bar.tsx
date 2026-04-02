@@ -1,12 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { planContext } from "@/data/mock-data";
 import { useAppStore } from "@/lib/store";
-import { ChevronDown, Sparkles, FileText } from "lucide-react";
+import { ChevronDown, Sparkles, FileText, Moon, Sun } from "lucide-react";
 import { TopNav } from "./nav-rail";
 
 export function TopBar() {
   const { toggleAiRail, aiRailOpen, toggleEvidence } = useAppStore();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const savedTheme = typeof window !== "undefined" ? window.localStorage.getItem("workforce-theme") : null;
+    const initialTheme: "light" | "dark" = savedTheme === "dark" ? "dark" : "light";
+    setTheme(initialTheme);
+    document.documentElement.setAttribute("data-theme", initialTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme: "light" | "dark" = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    window.localStorage.setItem("workforce-theme", nextTheme);
+  };
 
   return (
     <header
@@ -19,13 +35,7 @@ export function TopBar() {
       {/* Primary row: logo + selectors + actions */}
       <div className="h-12 flex items-center justify-between px-5">
         <div className="flex items-center gap-4 min-w-0">
-          <div className="flex items-center gap-2 shrink-0">
-            <div
-              className="flex items-center justify-center w-7 h-7"
-              style={{ background: "var(--bg-turquoise-primary)", borderRadius: "var(--radius-xs)" }}
-            >
-              <span className="text-white action-xs">W</span>
-            </div>
+          <div className="flex items-center shrink-0">
             <h1 className="heading-sm shrink-0" style={{ color: "var(--text-inverse)", letterSpacing: "0.03em" }}>
               WORKFORCE AI
             </h1>
@@ -63,6 +73,20 @@ export function TopBar() {
         </div>
 
         <div className="flex items-center gap-1">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-1.5 px-3 py-1.5 action-sm transition-colors hover:opacity-80"
+            style={{
+              color: "var(--shell-text-active)",
+              borderRadius: "var(--radius-sm)",
+              background: theme === "dark" ? "rgba(255,255,255,0.08)" : undefined,
+            }}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            title={theme === "dark" ? "Light mode" : "Dark mode"}
+          >
+            {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+            {theme === "dark" ? "Light" : "Dark"}
+          </button>
           <button
             onClick={toggleEvidence}
             className="flex items-center gap-1.5 px-3 py-1.5 action-sm transition-colors hover:opacity-80"

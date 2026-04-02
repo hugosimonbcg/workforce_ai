@@ -187,6 +187,68 @@
   --elevation-500: 0 8px 16px rgba(0, 0, 0, 0.20);
 }
 
+[data-theme="dark"] {
+  --brand-0: #111418;
+  --brand-100: #1a2028;
+  --brand-200: #232b35;
+  --brand-600: #0f1217;
+
+  --bg-default: #1a2028;
+  --bg-disabled: #2f3945;
+  --bg-brand-primary: #0f1217;
+  --bg-brand-secondary: #1a2028;
+  --bg-brand-tertiary: #232b35;
+  --bg-brand-hover: #3a4656;
+  --bg-brand-pressed: #0a0d12;
+
+  --outline-brand: #d9dde4;
+  --outline-primary: #3a4656;
+  --outline-secondary: #2f3945;
+  --outline-inverse: #0f1217;
+
+  --text-primary: #f5f7fb;
+  --text-secondary: #bdc6d3;
+  --text-inverse: #ffffff;
+  --text-green: #90dc75;
+  --text-yellow: #f6cf70;
+  --text-red: #f39e8e;
+  --text-turquoise: #84d8df;
+  --text-neutral: #d9e2f7;
+
+  --icon-primary: #f5f7fb;
+  --icon-secondary: #bdc6d3;
+  --icon-tertiary: #8896a8;
+  --icon-inverse: #ffffff;
+
+  --shell-bg: #0b0f14;
+  --shell-text: #8896a8;
+  --shell-text-active: #f5f7fb;
+  --shell-hover: #161c25;
+
+  --canvas-bg: #111418;
+  --canvas-surface: #1a2028;
+  --canvas-surface-raised: #232b35;
+  --canvas-border: #3a4656;
+  --canvas-border-subtle: #2f3945;
+
+  --text-tertiary: #8896a8;
+
+  --accent-primary: #44b5bf;
+  --accent-primary-soft: rgba(68, 181, 191, 0.2);
+  --accent-primary-hover: #58c2ca;
+
+  --positive-soft: rgba(82, 171, 50, 0.2);
+  --negative-soft: rgba(229, 72, 41, 0.2);
+  --warning-soft: rgba(240, 177, 19, 0.2);
+  --info-soft: rgba(54, 158, 168, 0.2);
+
+  --ai-accent: #8b7df0;
+  --ai-accent-soft: rgba(139, 125, 240, 0.18);
+  --ai-accent-hover: #9b8ef6;
+  --ai-surface: #232540;
+  --ai-border: #3a3d6e;
+}
+
 /* ------------------------------------------------------------------
    Tailwind v4 Theme Mapping
    ------------------------------------------------------------------ */
