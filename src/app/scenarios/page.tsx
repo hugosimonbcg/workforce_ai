@@ -266,7 +266,7 @@ export default function ScenariosPage() {
                 <div className="w-3 h-3 rounded-full" style={{ background: "var(--icon-tertiary)" }} />
                 <span className="body-sm" style={{ color: "var(--text-secondary)" }}>Other</span>
               </div>
-              <span className="body-sm ml-auto" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>↙ Better</span>
+              <span className="body-sm ml-auto" style={{ color: "var(--text-secondary)" }}>↙ Better</span>
             </div>
           </SectionCard>
         </div>

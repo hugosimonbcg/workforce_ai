@@ -100,18 +100,18 @@ export default function RosterPage() {
               <table className="w-full text-left" style={{ minWidth: "800px" }}>
                 <thead>
                   <tr style={{ background: "var(--brand-100)" }}>
-                    <th className="label-sm py-2.5 px-3 sticky left-0 z-10" style={{ color: "var(--text-secondary)", background: "var(--brand-100)", width: "160px", fontSize: "10px" }}>
+                    <th className="label-sm py-2.5 px-3 sticky left-0 z-10" style={{ color: "var(--text-secondary)", background: "var(--brand-100)", width: "160px" }}>
                       Worker
                     </th>
-                    <th className="label-sm py-2.5 px-2 text-center" style={{ color: "var(--text-secondary)", width: "60px", fontSize: "10px" }}>
+                    <th className="label-sm py-2.5 px-2 text-center" style={{ color: "var(--text-secondary)", width: "60px" }}>
                       Type
                     </th>
                     {DAYS.map(day => (
-                      <th key={day} className="label-sm py-2.5 px-1 text-center" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>
+                      <th key={day} className="label-sm py-2.5 px-1 text-center" style={{ color: "var(--text-secondary)" }}>
                         {day}
                       </th>
                     ))}
-                    <th className="label-sm py-2.5 px-2 text-center" style={{ color: "var(--text-secondary)", width: "50px", fontSize: "10px" }}>
+                    <th className="label-sm py-2.5 px-2 text-center" style={{ color: "var(--text-secondary)", width: "50px" }}>
                       Hrs
                     </th>
                   </tr>
@@ -159,7 +159,6 @@ export default function RosterPage() {
                                   color: cfg.color,
                                   maxWidth: "80px",
                                   borderRadius: "var(--radius-xs)",
-                                  fontSize: "8px",
                                 }}
                                 title={assignment?.shiftLabel || cfg.label}
                               >
@@ -210,8 +209,8 @@ export default function RosterPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="body-sm font-semibold" style={{ color: "var(--text-primary)" }}>{ex.workerName}</span>
-                          <span className="body-sm" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>{ex.dayLabel}</span>
-                          <span className="label-sm ml-auto" style={{ color: sev.color, fontSize: "10px" }}>{ex.severity}</span>
+                          <span className="body-sm" style={{ color: "var(--text-secondary)" }}>{ex.dayLabel}</span>
+                          <span className="label-sm ml-auto" style={{ color: sev.color }}>{ex.severity}</span>
                         </div>
                         <p className="body-sm" style={{ color: "var(--text-secondary)" }}>{ex.description}</p>
                         <p className="body-sm mt-1 font-medium" style={{ color: "var(--accent-primary)" }}>
@@ -258,7 +257,7 @@ export default function RosterPage() {
 
                 <div className="space-y-3">
                   <div className="p-3" style={{ background: "var(--brand-100)", borderRadius: "var(--radius-sm)" }}>
-                    <p className="label-sm mb-2" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>Profile</p>
+                    <p className="label-sm mb-2" style={{ color: "var(--text-secondary)" }}>Profile</p>
                     <div className="space-y-1.5 body-sm">
                       {[
                         ["Team", selectedWorker.team],
@@ -280,7 +279,7 @@ export default function RosterPage() {
                   </div>
 
                   <div className="p-3" style={{ background: "var(--brand-100)", borderRadius: "var(--radius-sm)" }}>
-                    <p className="label-sm mb-2" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>Qualifications</p>
+                    <p className="label-sm mb-2" style={{ color: "var(--text-secondary)" }}>Qualifications</p>
                     <div className="flex flex-wrap gap-1">
                       {selectedWorker.skills.map(s => (
                         <Badge key={s} variant="turquoise">
@@ -291,14 +290,14 @@ export default function RosterPage() {
                   </div>
 
                   <div className="p-3" style={{ background: "var(--brand-100)", borderRadius: "var(--radius-sm)" }}>
-                    <p className="label-sm mb-2" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>Weekly Schedule</p>
+                    <p className="label-sm mb-2" style={{ color: "var(--text-secondary)" }}>Weekly Schedule</p>
                     <div className="space-y-1">
                       {selectedWorkerAssignments.map((a) => {
                         const cfg = stateConfig[a.state];
                         return (
                           <div key={a.day} className="flex items-center gap-2">
-                            <span className="body-sm w-8 font-medium" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>{DAYS[a.day]}</span>
-                            <div className="flex-1 px-2 py-1 body-sm font-medium" style={{ background: cfg.bg, color: cfg.color, borderRadius: "var(--radius-xs)", fontSize: "10px" }}>
+                            <span className="body-sm w-8 font-medium" style={{ color: "var(--text-secondary)" }}>{DAYS[a.day]}</span>
+                            <div className="flex-1 px-2 py-1 body-sm font-medium" style={{ background: cfg.bg, color: cfg.color, borderRadius: "var(--radius-xs)" }}>
                               {a.state === "assigned" ? a.shiftLabel : cfg.label}
                               {a.hours ? ` · ${a.hours}h` : ""}
                             </div>
@@ -310,7 +309,7 @@ export default function RosterPage() {
 
                   {selectedWorkerExceptions.length > 0 && (
                     <div className="p-3" style={{ border: "1px solid var(--negative)", background: "var(--negative-soft)", borderRadius: "var(--radius-sm)" }}>
-                      <p className="label-sm mb-2" style={{ color: "var(--negative)", fontSize: "10px" }}>Exceptions</p>
+                      <p className="label-sm mb-2" style={{ color: "var(--negative)" }}>Exceptions</p>
                       {selectedWorkerExceptions.map(ex => (
                         <div key={ex.id} className="body-sm mb-2" style={{ color: "var(--text-secondary)" }}>
                           <p className="font-medium" style={{ color: "var(--text-primary)" }}>{ex.dayLabel}: {ex.type}</p>

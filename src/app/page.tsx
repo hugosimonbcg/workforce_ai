@@ -205,7 +205,7 @@ export default function RecommendationPage() {
             }}
           >
             <div className="flex items-center justify-between mb-3">
-              <h4 className="heading-sm" style={{ color: "var(--text-primary)", fontSize: "12px" }}>Workload Peaks</h4>
+              <h4 className="heading-sm" style={{ color: "var(--text-primary)" }}>Workload Peaks</h4>
               <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "var(--accent-primary)" }} />
             </div>
             <ResponsiveContainer width="100%" height={80}>
@@ -229,7 +229,7 @@ export default function RecommendationPage() {
             }}
           >
             <div className="flex items-center justify-between mb-3">
-              <h4 className="heading-sm" style={{ color: "var(--text-primary)", fontSize: "12px" }}>Shift Architecture</h4>
+              <h4 className="heading-sm" style={{ color: "var(--text-primary)" }}>Shift Architecture</h4>
               <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "var(--accent-primary)" }} />
             </div>
             <div className="space-y-1.5">
@@ -241,7 +241,7 @@ export default function RecommendationPage() {
                   : ACTIVITY_COLORS.loading;
                 return (
                   <div key={skill} className="flex items-center gap-2">
-                    <span className="body-sm w-12 text-right capitalize" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>
+                    <span className="body-sm w-12 text-right capitalize" style={{ color: "var(--text-secondary)" }}>
                       {skill}
                     </span>
                     <div className="flex-1 flex gap-0.5 h-3 relative" style={{ background: "var(--brand-100)", borderRadius: "var(--radius-2xs)" }}>
@@ -278,7 +278,7 @@ export default function RecommendationPage() {
             }}
           >
             <div className="flex items-center justify-between mb-3">
-              <h4 className="heading-sm" style={{ color: "var(--text-primary)", fontSize: "12px" }}>Roster Feasibility</h4>
+              <h4 className="heading-sm" style={{ color: "var(--text-primary)" }}>Roster Feasibility</h4>
               <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "var(--accent-primary)" }} />
             </div>
             <div className="flex items-center gap-4 mb-3">

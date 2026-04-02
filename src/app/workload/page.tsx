@@ -134,7 +134,7 @@ export default function WorkloadPage() {
             <div className="grid gap-0.5" style={{ gridTemplateColumns: "48px repeat(17, 1fr)", minWidth: "700px" }}>
               <div />
               {Array.from({ length: 17 }, (_, i) => (
-                <div key={i} className="text-center py-1 label-sm" style={{ color: "var(--text-secondary)", fontSize: "9px" }}>
+                <div key={i} className="text-center py-1 label-sm" style={{ color: "var(--text-secondary)" }}>
                   {(i + 6).toString().padStart(2, "0")}
                 </div>
               ))}
@@ -168,13 +168,13 @@ export default function WorkloadPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 mt-3">
-            <span className="body-sm" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>Low</span>
+            <span className="body-sm" style={{ color: "var(--text-secondary)" }}>Low</span>
             <div className="flex gap-0.5">
               {[0.1, 0.3, 0.5, 0.7, 0.9].map(v => (
                 <div key={v} className="w-4 h-2" style={{ background: `rgba(54, 158, 168, ${0.08 + v * 0.72})`, borderRadius: "var(--radius-2xs)" }} />
               ))}
             </div>
-            <span className="body-sm" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>High</span>
+            <span className="body-sm" style={{ color: "var(--text-secondary)" }}>High</span>
           </div>
         </SectionCard>
 
@@ -233,7 +233,7 @@ export default function WorkloadPage() {
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--outline-secondary)" }}>
                   {["Activity", "Skill", "Units/hr", "Total units", "Labor hours", "Peak workers"].map(h => (
-                    <th key={h} className="label-sm py-2 px-3" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>
+                    <th key={h} className="label-sm py-2 px-3" style={{ color: "var(--text-secondary)" }}>
                       {h}
                     </th>
                   ))}

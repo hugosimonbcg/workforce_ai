@@ -119,7 +119,6 @@ export default function ShiftPlanPage() {
                     color: "var(--text-secondary)",
                     textAlign: "left",
                     transform: "translateX(-50%)",
-                    fontSize: "9px",
                   }}
                 >
                   {(i + HOUR_START).toString().padStart(2, "0")}
@@ -141,11 +140,11 @@ export default function ShiftPlanPage() {
 
                   return (
                     <div key={`${day}-${skill}`} className="flex items-center gap-2 mb-0.5" style={{ minWidth: "600px" }}>
-                      <span className="body-sm font-medium w-[72px] text-right truncate shrink-0" style={{ color: meta.color, fontSize: "11px" }}>
+                      <span className="body-sm font-medium w-[72px] text-right truncate shrink-0" style={{ color: meta.color }}>
                         {meta.label}
                       </span>
                       <div
-                        className="flex-1 relative h-7"
+                        className="flex-1 relative h-8"
                         style={{ background: "var(--brand-100)", borderRadius: "var(--radius-xs)" }}
                       >
                         {daySkillShifts.map(s => {
@@ -165,10 +164,10 @@ export default function ShiftPlanPage() {
                               }}
                               title={`${s.label} · ${s.startHour}:00–${s.endHour}:00 · ${s.workerCount} workers`}
                             >
-                              <span className="action-xs truncate" style={{ fontSize: "8px" }}>
+                              <span className="action-xs truncate">
                                 {s.startHour}–{s.endHour}
                               </span>
-                              <span className="action-xs opacity-80" style={{ fontSize: "8px" }}>
+                              <span className="action-xs opacity-80">
                                 ×{s.workerCount}
                               </span>
                             </div>
@@ -234,7 +233,7 @@ export default function ShiftPlanPage() {
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--outline-secondary)" }}>
                   {["Skill", "Shifts", "Workers", "Worker-hours", "Est. cost"].map(h => (
-                    <th key={h} className="label-sm py-2 px-3" style={{ color: "var(--text-secondary)", fontSize: "10px" }}>
+                    <th key={h} className="label-sm py-2 px-3" style={{ color: "var(--text-secondary)" }}>
                       {h}
                     </th>
                   ))}
