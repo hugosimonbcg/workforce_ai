@@ -23,7 +23,7 @@ export function TopNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex items-center gap-1 px-2">
+    <nav className="flex items-center gap-1">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         return (

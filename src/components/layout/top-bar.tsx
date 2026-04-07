@@ -5,6 +5,7 @@ import { planContext } from "@/data/mock-data";
 import { useAppStore } from "@/lib/store";
 import { ChevronDown, Sparkles, FileText, Moon, Sun } from "lucide-react";
 import { TopNav } from "./nav-rail";
+import { HeaderKpiStrip } from "./header-kpi-strip";
 
 export function TopBar() {
   const { toggleAiRail, aiRailOpen, toggleEvidence } = useAppStore();
@@ -26,14 +27,18 @@ export function TopBar() {
 
   return (
     <header
-      className="flex flex-col shrink-0"
+      className="app-header-chrome flex flex-col shrink-0"
       style={{
         background: "var(--shell-bg)",
         borderBottom: "1px solid var(--bg-brand-hover)",
+        color: "var(--shell-text-active)",
       }}
     >
-      {/* Primary row: logo + selectors + actions */}
-      <div className="h-12 flex items-center justify-between px-5">
+      {/* Primary row: logo + selectors + actions — same dark chrome as KPI strip + tabs */}
+      <div
+        className="h-12 flex items-center justify-between px-5"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+      >
         <div className="flex items-center gap-4 min-w-0">
           <div className="flex items-center shrink-0">
             <h1 className="heading-sm shrink-0" style={{ color: "var(--text-inverse)", letterSpacing: "0.03em" }}>
@@ -110,12 +115,14 @@ export function TopBar() {
         </div>
       </div>
 
+      <HeaderKpiStrip />
+
       {/* Secondary row: navigation links */}
       <div
-        className="flex items-center h-10 px-3 overflow-x-auto"
+        className="flex items-center h-10 px-5 overflow-x-auto"
         style={{
-          borderTop: "1px solid var(--bg-brand-hover)",
-          background: "rgba(0,0,0,0.12)",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          background: "var(--shell-hover)",
         }}
       >
         <TopNav />

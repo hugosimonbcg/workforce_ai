@@ -2,6 +2,11 @@
 
 import { useAppStore } from "@/lib/store";
 import { getInsightsForScreen, type AIInsight } from "@/data/mock-data";
+import { SUGGESTED_PROMPT_TO_PRESET_ID } from "@/data/ai-presets";
+import { findPresetById } from "@/lib/ai/routing";
+import { presetResponseToInsights } from "@/lib/ai/preset-to-insights";
+import type { MergedPresetResponse } from "@/lib/ai/preset-to-insights";
+import type { NarrativeSource } from "@/lib/ai/types";
 import { Sparkles, ChevronRight, Lightbulb, AlertTriangle, TrendingUp, FileText, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
@@ -22,7 +27,13 @@ const typeLabels: Record<string, string> = {
   explanation: "Insight",
 };
 
-function InsightCard({ insight }: { insight: AIInsight }) {
+function InsightCard({
+  insight,
+  onOpenPreset,
+}: {
+  insight: AIInsight;
+  onOpenPreset?: (presetId: string) => void;
+}) {
   const Icon = typeIcons[insight.type] || Lightbulb;
 
   return (
@@ -74,6 +85,21 @@ function InsightCard({ insight }: { insight: AIInsight }) {
           ))}
         </div>
       )}
+      {insight.type === "action" && insight.actionPresetId && onOpenPreset && (
+        <button
+          type="button"
+          onClick={() => onOpenPreset(insight.actionPresetId!)}
+          className="mt-2.5 px-2.5 py-1.5 action-sm delight-press delight-focus w-full text-left"
+          style={{
+            background: "var(--ai-accent-soft)",
+            color: "var(--ai-accent)",
+            borderRadius: "var(--radius-sm)",
+            border: "1px solid var(--ai-border)",
+          }}
+        >
+          Open briefing
+        </button>
+      )}
     </div>
   );
 }
@@ -106,12 +132,70 @@ const suggestedPrompts: Record<string, string[]> = {
   ],
 };
 
+type ApiAiJson = {
+  ok: boolean;
+  code?: string;
+  preset?: { id: string };
+  mergedResponse?: MergedPresetResponse;
+  narrativeSource?: NarrativeSource;
+  narrativeModelId?: string;
+  error?: string;
+};
+
 export function CopilotRail() {
-  const { aiRailOpen, activeScreen } = useAppStore();
-  const insights = getInsightsForScreen(activeScreen);
+  const {
+    aiRailOpen,
+    activeScreen,
+    aiRailInsights,
+    aiPhase,
+    aiNarrativeSource,
+    openAiPreset,
+    hydrateAiCopilot,
+    setAiPhase,
+  } = useAppStore();
+  const insights = aiRailInsights ?? getInsightsForScreen(activeScreen);
   const prompts = suggestedPrompts[activeScreen] || suggestedPrompts.recommendation;
   const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => { setMounted(true); }, []);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleSuggestedPrompt = React.useCallback(
+    async (prompt: string) => {
+      const presetId = SUGGESTED_PROMPT_TO_PRESET_ID[prompt];
+      setAiPhase("thinking");
+      try {
+        const res = await fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, routeTag: activeScreen, presetId }),
+        });
+        const data = (await res.json()) as ApiAiJson;
+        if (data.preset?.id && data.mergedResponse) {
+          const preset = findPresetById(data.preset.id);
+          if (preset) {
+            const source: NarrativeSource = data.narrativeSource === "groq" ? "groq" : "preset";
+            const nextInsights = presetResponseToInsights(preset, data.mergedResponse, source, activeScreen);
+            hydrateAiCopilot(nextInsights, source, data.preset.id);
+            return;
+          }
+        }
+        if (presetId) openAiPreset(presetId);
+        else setAiPhase("idle");
+      } catch {
+        if (presetId) openAiPreset(presetId);
+        else setAiPhase("idle");
+      }
+    },
+    [activeScreen, hydrateAiCopilot, openAiPreset, setAiPhase],
+  );
+
+  const footerText =
+    aiNarrativeSource === "groq"
+      ? "Summary wording polished by model · Facts and numbers stay on scenario seed data"
+      : aiNarrativeSource === "preset"
+        ? "Preset narrative from seed data · No generative facts added"
+        : "Grounded in current scenario data · Deterministic outputs";
 
   if (!mounted) return null;
 
@@ -151,7 +235,7 @@ export function CopilotRail() {
 
           <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-3">
             {insights.map((insight) => (
-              <InsightCard key={insight.id} insight={insight} />
+              <InsightCard key={insight.id} insight={insight} onOpenPreset={openAiPreset} />
             ))}
 
             <div className="mt-2">
@@ -162,7 +246,10 @@ export function CopilotRail() {
                 {prompts.map((prompt) => (
                   <button
                     key={prompt}
-                    className="flex items-center gap-2 px-3 py-2 text-left body-sm delight-press delight-focus"
+                    type="button"
+                    disabled={aiPhase === "thinking"}
+                    onClick={() => void handleSuggestedPrompt(prompt)}
+                    className="flex items-center gap-2 px-3 py-2 text-left body-sm delight-press delight-focus disabled:opacity-50"
                     style={{
                       border: "1px solid var(--ai-border)",
                       color: "var(--text-secondary)",
@@ -180,7 +267,7 @@ export function CopilotRail() {
 
           <div className="px-3 py-2.5" style={{ borderTop: "1px solid var(--outline-secondary)" }}>
             <p className="body-sm text-center" style={{ color: "var(--text-secondary)" }}>
-              Grounded in current scenario data · Deterministic outputs
+              {footerText}
             </p>
           </div>
         </motion.aside>

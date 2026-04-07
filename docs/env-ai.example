@@ -1,0 +1,4 @@
+# Copy variables into `.env.local` for Groq polish (optional).
+# GROQ_API_KEY=
+# GROQ_MODEL=llama-3.3-70b-versatile
+# AI_API_KEY=   # alternative to GROQ_API_KEY

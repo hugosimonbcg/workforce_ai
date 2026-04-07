@@ -484,6 +484,8 @@ export interface AIInsight {
   content: string;
   sources?: string[];
   screen: string;
+  /** When set, "Open" affordance runs openAiPreset(this) from CopilotRail */
+  actionPresetId?: string;
 }
 
 export const aiInsights: AIInsight[] = [

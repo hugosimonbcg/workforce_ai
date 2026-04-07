@@ -1,12 +1,12 @@
 "use client";
 
 import { ScreenWrapper } from "@/components/layout/screen-wrapper";
-import { KPICard } from "@/components/ui/kpi-card";
 import { SectionCard } from "@/components/ui/section-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
-import { getActiveScenario, getBaselineScenario, planContext } from "@/data/mock-data";
-import { formatCurrency, formatPercent, formatNumber, ACTIVITY_COLORS, DAYS } from "@/lib/utils";
+import { getBaselineScenario, getScenario, planContext } from "@/data/mock-data";
+import { useAppStore } from "@/lib/store";
+import { formatCurrency, formatPercent, ACTIVITY_COLORS, DAYS } from "@/lib/utils";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   AreaChart, Area,
@@ -23,7 +23,8 @@ const tooltipStyle = {
 };
 
 export default function RecommendationPage() {
-  const active = getActiveScenario();
+  const activeScenarioId = useAppStore((s) => s.activeScenarioId);
+  const active = getScenario(activeScenarioId)!;
   const baseline = getBaselineScenario();
   const a = active.kpis;
   const b = baseline.kpis;
@@ -114,16 +115,6 @@ export default function RecommendationPage() {
             ))}
           </div>
         </SectionCard>
-
-        {/* KPI Spine */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-          <KPICard label="Total labor cost" value={formatCurrency(a.totalLaborCost)} baseline={formatCurrency(b.totalLaborCost)} delta={`−${formatCurrency(Math.abs(costDelta))}`} deltaDirection="positive" />
-          <KPICard label="Overtime cost" value={formatCurrency(a.overtimeCost)} baseline={formatCurrency(b.overtimeCost)} delta={`−${formatCurrency(b.overtimeCost - a.overtimeCost)}`} deltaDirection="positive" />
-          <KPICard label="Overtime %" value={formatPercent(a.overtimePercent)} baseline={formatPercent(b.overtimePercent)} delta={`−${formatPercent(b.overtimePercent - a.overtimePercent)}`} deltaDirection="positive" />
-          <KPICard label="Agency cost" value={formatCurrency(a.agencyCost)} baseline={formatCurrency(b.agencyCost)} delta={`−${formatCurrency(b.agencyCost - a.agencyCost)}`} deltaDirection="positive" />
-          <KPICard label="Cost per unit" value={`$${a.costPerUnit.toFixed(2)}`} baseline={`$${b.costPerUnit.toFixed(2)}`} delta={`−$${(b.costPerUnit - a.costPerUnit).toFixed(2)}`} deltaDirection="positive" />
-          <KPICard label="Annualized value" value={formatCurrency(active.valuLevers.reduce((s, v) => s + v.annualizedSaving, 0) * 0.8, true)} sublabel="Conservative est. (80%)" delta={`${formatCurrency(active.valuLevers.reduce((s, v) => s + v.annualizedSaving, 0), true)} expected`} deltaDirection="positive" />
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Value Waterfall */}
