@@ -4,8 +4,8 @@ import { ScreenWrapper } from "@/components/layout/screen-wrapper";
 import { SectionCard } from "@/components/ui/section-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { FilterChip } from "@/components/ui/filter-chip";
-import { getActiveScenario, getBaselineScenario, planContext } from "@/data/mock-data";
-import { DAYS, ACTIVITY_COLORS, formatNumber, formatCurrency, formatHours } from "@/lib/utils";
+import { getActiveScenario, planContext } from "@/data/mock-data";
+import { DAYS, ACTIVITY_COLORS, formatNumber, formatCurrency } from "@/lib/utils";
 import { Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import {
@@ -60,7 +60,7 @@ export default function ShiftPlanPage() {
       const totalCost = ss.reduce((sum, s) => sum + s.duration * s.workerCount * s.costPerHour, 0);
       return { skill, ...skillMeta[skill], shiftCount: ss.length, totalWorkers, totalWorkerHours, totalCost };
     });
-  }, [filteredShifts]);
+  }, [filteredShifts, skills]);
 
   const constraints = [
     { label: "OT cap", value: "8%", active: true },
@@ -106,74 +106,92 @@ export default function ShiftPlanPage() {
         <SectionCard>
           <SectionHeader
             title="Shift Architecture"
-            subtitle={`${selectedDay !== null ? `${DAYS[selectedDay]} shift blocks by skill` : "Weekly shift blocks by skill and day"} · Blocks show time range and worker count`}
+            subtitle={`${selectedDay !== null ? `${DAYS[selectedDay]} shift blocks` : "Weekly shift blocks by day"} · One row per block (time × headcount) — no overlap on the same line`}
           />
-          <div className="space-y-1 overflow-x-auto">
-            <div className="flex items-center" style={{ paddingLeft: "80px", minWidth: "600px" }}>
-              {Array.from({ length: TOTAL_HOURS + 1 }, (_, i) => (
-                <div
-                  key={i}
-                  className="label-sm tabular-nums"
-                  style={{
-                    width: `${100 / TOTAL_HOURS}%`,
-                    color: "var(--text-secondary)",
-                    textAlign: "left",
-                    transform: "translateX(-50%)",
-                  }}
-                >
-                  {(i + HOUR_START).toString().padStart(2, "0")}
-                </div>
-              ))}
+          <div className="space-y-0 overflow-x-auto">
+            <div className="flex items-center gap-2 mb-2" style={{ minWidth: "640px" }}>
+              <div className="w-[112px] shrink-0" aria-hidden />
+              <div className="flex-1 flex">
+                {Array.from({ length: TOTAL_HOURS + 1 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="label-sm tabular-nums"
+                    style={{
+                      width: `${100 / TOTAL_HOURS}%`,
+                      color: "var(--text-secondary)",
+                      textAlign: "left",
+                      transform: "translateX(-50%)",
+                    }}
+                  >
+                    {(i + HOUR_START).toString().padStart(2, "0")}
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {(selectedDay !== null ? [selectedDay] : [0, 1, 2, 3, 4, 5, 6]).map(day => (
+            {(selectedDay !== null ? [selectedDay] : [0, 1, 2, 3, 4, 5, 6]).map((day) => (
               <div key={day}>
                 {selectedDay === null && (
-                  <div className="action-sm mt-3 mb-1 pl-1" style={{ color: "var(--text-secondary)" }}>
+                  <div className="action-sm mt-3 mb-2 pl-1" style={{ color: "var(--text-secondary)" }}>
                     {DAYS[day]}
                   </div>
                 )}
-                {skills.map(skill => {
-                  const daySkillShifts = filteredShifts.filter(s => s.day === day && s.skill === skill);
-                  if (daySkillShifts.length === 0) return null;
+                {skills.map((skill) => {
                   const meta = skillMeta[skill];
+                  const daySkillShifts = filteredShifts
+                    .filter((s) => s.day === day && s.skill === skill)
+                    .sort((a, b) => a.startHour - b.startHour || a.label.localeCompare(b.label));
+                  if (daySkillShifts.length === 0) return null;
 
                   return (
-                    <div key={`${day}-${skill}`} className="flex items-center gap-2 mb-0.5" style={{ minWidth: "600px" }}>
-                      <span className="body-sm font-medium w-[72px] text-right truncate shrink-0" style={{ color: meta.color }}>
-                        {meta.label}
-                      </span>
-                      <div
-                        className="flex-1 relative h-8"
-                        style={{ background: "var(--brand-100)", borderRadius: "var(--radius-xs)" }}
-                      >
-                        {daySkillShifts.map(s => {
-                          const left = ((s.startHour - HOUR_START) / TOTAL_HOURS) * 100;
-                          const width = (s.duration / TOTAL_HOURS) * 100;
-                          return (
-                            <div
-                              key={s.id}
-                              className="absolute top-0.5 bottom-0.5 flex items-center justify-center gap-1 px-1.5 text-white"
-                              style={{
-                                left: `${left}%`,
-                                width: `${width}%`,
-                                background: meta.color,
-                                opacity: 0.85,
-                                minWidth: "40px",
-                                borderRadius: "var(--radius-xs)",
-                              }}
-                              title={`${s.label} · ${s.startHour}:00–${s.endHour}:00 · ${s.workerCount} workers`}
-                            >
-                              <span className="action-xs truncate">
-                                {s.startHour}–{s.endHour}
+                    <div key={`${day}-${skill}`} className="space-y-1.5 mb-2 last:mb-0">
+                      {daySkillShifts.map((s) => {
+                        const left = ((s.startHour - HOUR_START) / TOTAL_HOURS) * 100;
+                        const width = (s.duration / TOTAL_HOURS) * 100;
+                        const workerHours = s.duration * s.workerCount;
+                        const blockCost = workerHours * s.costPerHour;
+                        return (
+                          <div
+                            key={s.id}
+                            className="flex items-stretch gap-2"
+                            style={{ minWidth: "640px" }}
+                          >
+                            <div className="w-[112px] shrink-0 flex flex-col justify-center text-right pr-1">
+                              <span className="body-sm font-medium leading-tight truncate" style={{ color: meta.color }}>
+                                {meta.label}
                               </span>
-                              <span className="action-xs opacity-80">
-                                ×{s.workerCount}
+                              <span className="action-xs leading-tight truncate mt-0.5" style={{ color: "var(--text-secondary)" }}>
+                                {s.label}
                               </span>
                             </div>
-                          );
-                        })}
-                      </div>
+                            <div
+                              className="flex-1 relative min-h-8 py-0.5"
+                              style={{ background: "var(--brand-100)", borderRadius: "var(--radius-xs)" }}
+                            >
+                              <div
+                                className="absolute top-1 bottom-1 flex items-center justify-center gap-1 px-2 text-white shadow-sm"
+                                style={{
+                                  left: `${left}%`,
+                                  width: `${Math.max(width, 1.5)}%`,
+                                  background: meta.color,
+                                  opacity: 0.92,
+                                  minWidth: "36px",
+                                  borderRadius: "var(--radius-xs)",
+                                  border: "1px solid rgba(0,0,0,0.12)",
+                                }}
+                                title={`${s.label} · ${s.startHour}:00–${s.endHour}:00 · ${s.workerCount} workers · ${workerHours} worker-h · ${formatCurrency(blockCost)}`}
+                              >
+                                <span className="action-xs font-semibold tabular-nums whitespace-nowrap">
+                                  {s.startHour}:00–{s.endHour}:00
+                                </span>
+                                <span className="action-xs opacity-90 whitespace-nowrap">
+                                  ×{s.workerCount}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                 })}

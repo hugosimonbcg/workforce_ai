@@ -6,8 +6,9 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Badge } from "@/components/ui/badge";
 import { getActiveScenario, planContext } from "@/data/mock-data";
-import { DAYS, formatNumber } from "@/lib/utils";
-import { Sparkles, X, AlertTriangle, AlertCircle, Info } from "lucide-react";
+import { DAYS } from "@/lib/utils";
+import { Sparkles, X, AlertTriangle, AlertCircle, Info, Table2, GanttChartSquare } from "lucide-react";
+import { RosterTimelineView } from "@/components/roster/roster-timeline-view";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -28,14 +29,16 @@ const severityConfig = {
 };
 
 type FilterType = "all" | "exceptions" | "reserves" | string;
+type RosterViewMode = "table" | "timeline";
 
 export default function RosterPage() {
   const active = getActiveScenario();
-  const { workers } = planContext;
+  const { workers, horizon } = planContext;
   const assignments = active.rosterAssignments;
   const exceptions = active.rosterExceptions;
   const [filter, setFilter] = useState<FilterType>("all");
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
+  const [rosterView, setRosterView] = useState<RosterViewMode>("table");
 
   const uniqueSkills = [...new Set(workers.flatMap(w => w.skills))];
 
@@ -74,7 +77,35 @@ export default function RosterPage() {
             </div>
           </div>
 
-          {/* Filters */}
+          {/* View + filters */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-1 p-0.5 rounded-md" style={{ background: "var(--brand-100)" }}>
+              <span className="label-sm px-2 shrink-0" style={{ color: "var(--text-secondary)" }}>
+                View
+              </span>
+              {(
+                [
+                  { id: "table" as const, label: "Table", Icon: Table2 },
+                  { id: "timeline" as const, label: "Schedule", Icon: GanttChartSquare },
+                ] as const
+              ).map(({ id, label, Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setRosterView(id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm body-sm font-medium transition-colors delight-focus"
+                  style={{
+                    color: rosterView === id ? "var(--text-inverse)" : "var(--text-secondary)",
+                    background: rosterView === id ? "var(--bg-turquoise-primary)" : "transparent",
+                  }}
+                >
+                  <Icon size={14} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex items-center gap-2 flex-wrap">
             <span className="body-sm font-medium mr-1" style={{ color: "var(--text-secondary)" }}>Filter:</span>
             {[
@@ -87,7 +118,7 @@ export default function RosterPage() {
             ))}
           </div>
 
-          {/* Roster Grid */}
+          {/* Roster Grid or Timeline */}
           <div
             className="overflow-hidden"
             style={{
@@ -96,6 +127,17 @@ export default function RosterPage() {
               borderRadius: "var(--radius-sm)",
             }}
           >
+            {rosterView === "timeline" ? (
+              <RosterTimelineView
+                weekStartIso={horizon.start}
+                workers={filteredWorkers}
+                assignments={assignments}
+                exceptions={exceptions}
+                shifts={active.shifts}
+                selectedWorkerId={selectedWorkerId}
+                onWorkerClick={(id) => setSelectedWorkerId(id === selectedWorkerId ? null : id)}
+              />
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left" style={{ minWidth: "800px" }}>
                 <thead>
@@ -184,6 +226,7 @@ export default function RosterPage() {
                 </tbody>
               </table>
             </div>
+            )}
           </div>
 
           {/* Exception Queue */}

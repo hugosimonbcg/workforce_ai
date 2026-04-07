@@ -7,9 +7,20 @@ import { findPresetById } from "@/lib/ai/routing";
 import { presetResponseToInsights } from "@/lib/ai/preset-to-insights";
 import type { MergedPresetResponse } from "@/lib/ai/preset-to-insights";
 import type { NarrativeSource } from "@/lib/ai/types";
-import { Sparkles, ChevronRight, Lightbulb, AlertTriangle, TrendingUp, FileText, Zap } from "lucide-react";
+import {
+  Sparkles,
+  ChevronRight,
+  Lightbulb,
+  AlertTriangle,
+  TrendingUp,
+  FileText,
+  Zap,
+  SendHorizontal,
+  Loader2,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
+import { cn } from "@/lib/utils";
 
 const typeIcons: Record<string, React.ElementType> = {
   summary: FileText,
@@ -142,6 +153,12 @@ type ApiAiJson = {
   error?: string;
 };
 
+type ChatMessage = { id: string; role: "user" | "assistant"; content: string };
+
+function chatId() {
+  return `m-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
 export function CopilotRail() {
   const {
     aiRailOpen,
@@ -156,13 +173,26 @@ export function CopilotRail() {
   const insights = aiRailInsights ?? getInsightsForScreen(activeScreen);
   const prompts = suggestedPrompts[activeScreen] || suggestedPrompts.recommendation;
   const [mounted, setMounted] = React.useState(false);
+  const [chatInput, setChatInput] = React.useState("");
+  const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([]);
+  const chatEndRef = React.useRef<HTMLDivElement>(null);
+  const chatInFlight = React.useRef(false);
+
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleSuggestedPrompt = React.useCallback(
-    async (prompt: string) => {
-      const presetId = SUGGESTED_PROMPT_TO_PRESET_ID[prompt];
+  React.useEffect(() => {
+    setChatMessages([]);
+    setChatInput("");
+  }, [activeScreen]);
+
+  React.useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [chatMessages]);
+
+  const runAiQuery = React.useCallback(
+    async (prompt: string, presetId?: string): Promise<{ ok: boolean; summary?: string }> => {
       setAiPhase("thinking");
       try {
         const res = await fetch("/api/ai", {
@@ -177,18 +207,76 @@ export function CopilotRail() {
             const source: NarrativeSource = data.narrativeSource === "groq" ? "groq" : "preset";
             const nextInsights = presetResponseToInsights(preset, data.mergedResponse, source, activeScreen);
             hydrateAiCopilot(nextInsights, source, data.preset.id);
-            return;
+            return { ok: true, summary: data.mergedResponse.summary };
           }
         }
-        if (presetId) openAiPreset(presetId);
-        else setAiPhase("idle");
+        if (presetId) {
+          openAiPreset(presetId);
+          const p = findPresetById(presetId);
+          return { ok: true, summary: p?.response.summary ?? "See the briefing cards above." };
+        }
+        setAiPhase("idle");
+        return { ok: false };
       } catch {
-        if (presetId) openAiPreset(presetId);
-        else setAiPhase("idle");
+        if (presetId) {
+          openAiPreset(presetId);
+          const p = findPresetById(presetId);
+          return { ok: true, summary: p?.response.summary ?? "See the briefing cards above." };
+        }
+        setAiPhase("idle");
+        return { ok: false };
       }
     },
     [activeScreen, hydrateAiCopilot, openAiPreset, setAiPhase],
   );
+
+  const handleSuggestedPrompt = React.useCallback(
+    async (prompt: string) => {
+      const presetId = SUGGESTED_PROMPT_TO_PRESET_ID[prompt];
+      await runAiQuery(prompt, presetId);
+    },
+    [runAiQuery],
+  );
+
+  const handleChatSubmit = React.useCallback(
+    async (e?: React.FormEvent) => {
+      e?.preventDefault();
+      const text = chatInput.trim();
+      if (!text || aiPhase === "thinking" || chatInFlight.current) return;
+      chatInFlight.current = true;
+      setChatInput("");
+      setChatMessages((prev) => [...prev, { id: chatId(), role: "user", content: text }]);
+      try {
+        const result = await runAiQuery(text);
+        if (result.ok && result.summary) {
+          const reply = result.summary;
+          setChatMessages((prev) => [
+            ...prev,
+            {
+              id: chatId(),
+              role: "assistant",
+              content: reply,
+            },
+          ]);
+        } else {
+          setChatMessages((prev) => [
+            ...prev,
+            {
+              id: chatId(),
+              role: "assistant",
+              content:
+                "I couldn’t match that to this screen’s briefing library. Try rephrasing, use a suggested prompt, or ask about risks, costs, or shifts for this view.",
+            },
+          ]);
+        }
+      } finally {
+        chatInFlight.current = false;
+      }
+    },
+    [aiPhase, chatInput, runAiQuery],
+  );
+
+  const thinking = aiPhase === "thinking";
 
   const footerText =
     aiNarrativeSource === "groq"
@@ -207,14 +295,14 @@ export function CopilotRail() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, width: 0 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="h-full shrink-0 overflow-hidden flex flex-col w-[260px] xl:w-[310px]"
+          className="h-full min-h-0 shrink-0 overflow-hidden flex flex-col w-[260px] xl:w-[310px]"
           style={{
             borderLeft: "1px solid var(--outline-secondary)",
             background: "var(--canvas-surface)",
           }}
         >
           <div
-            className="px-4 py-3 flex items-center gap-2"
+            className="px-4 py-3 flex items-center gap-2 shrink-0"
             style={{ borderBottom: "1px solid var(--outline-secondary)" }}
           >
             <Sparkles size={14} style={{ color: "var(--ai-accent)" }} />
@@ -233,7 +321,7 @@ export function CopilotRail() {
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-3">
+          <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 flex flex-col gap-3">
             {insights.map((insight) => (
               <InsightCard key={insight.id} insight={insight} onOpenPreset={openAiPreset} />
             ))}
@@ -247,7 +335,7 @@ export function CopilotRail() {
                   <button
                     key={prompt}
                     type="button"
-                    disabled={aiPhase === "thinking"}
+                    disabled={thinking}
                     onClick={() => void handleSuggestedPrompt(prompt)}
                     className="flex items-center gap-2 px-3 py-2 text-left body-sm delight-press delight-focus disabled:opacity-50"
                     style={{
@@ -265,7 +353,86 @@ export function CopilotRail() {
             </div>
           </div>
 
-          <div className="px-3 py-2.5" style={{ borderTop: "1px solid var(--outline-secondary)" }}>
+          <div
+            className="shrink-0 px-3 pt-2 pb-2 flex flex-col gap-2 border-t"
+            style={{ borderColor: "var(--outline-secondary)" }}
+          >
+            <p className="label-sm" style={{ color: "var(--text-secondary)" }}>
+              Chat
+            </p>
+            {chatMessages.length > 0 && (
+              <div
+                className="max-h-[140px] overflow-y-auto space-y-2 rounded-md px-2 py-2"
+                style={{ background: "var(--brand-100)" }}
+              >
+                {chatMessages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
+                  >
+                    <div
+                      className={cn(
+                        "max-w-[95%] rounded-lg px-2.5 py-1.5 body-sm whitespace-pre-wrap break-words",
+                        m.role === "user"
+                          ? "rounded-br-sm"
+                          : "rounded-bl-sm",
+                      )}
+                      style={{
+                        background:
+                          m.role === "user" ? "var(--ai-accent-soft)" : "var(--canvas-surface)",
+                        color: m.role === "user" ? "var(--ai-accent)" : "var(--text-primary)",
+                        border:
+                          m.role === "assistant" ? "1px solid var(--ai-border)" : undefined,
+                      }}
+                    >
+                      {m.content}
+                    </div>
+                  </div>
+                ))}
+                <div ref={chatEndRef} />
+              </div>
+            )}
+            <form onSubmit={(e) => void handleChatSubmit(e)} className="flex gap-2 items-end">
+              <textarea
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    void handleChatSubmit();
+                  }
+                }}
+                rows={2}
+                placeholder="Ask a question…"
+                disabled={thinking}
+                className="flex-1 min-w-0 resize-none rounded-md px-2.5 py-2 body-sm outline-none focus-visible:ring-2 disabled:opacity-50"
+                style={{
+                  background: "var(--canvas-surface)",
+                  border: "1px solid var(--ai-border)",
+                  color: "var(--text-primary)",
+                  boxShadow: "none",
+                }}
+                aria-label="Message to AI Copilot"
+              />
+              <button
+                type="submit"
+                disabled={thinking || !chatInput.trim()}
+                className="shrink-0 flex items-center justify-center w-10 h-10 rounded-md delight-press delight-focus disabled:opacity-40"
+                style={{
+                  background: "var(--ai-accent)",
+                  color: "var(--text-inverse)",
+                }}
+                aria-label="Send message"
+              >
+                {thinking ? <Loader2 size={18} className="animate-spin" /> : <SendHorizontal size={18} />}
+              </button>
+            </form>
+          </div>
+
+          <div
+            className="px-3 py-2.5 shrink-0"
+            style={{ borderTop: "1px solid var(--outline-secondary)" }}
+          >
             <p className="body-sm text-center" style={{ color: "var(--text-secondary)" }}>
               {footerText}
             </p>
