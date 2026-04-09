@@ -159,7 +159,7 @@ function chatId() {
   return `m-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export function CopilotRail() {
+export function CopilotRail({ embedded = false }: { embedded?: boolean } = {}) {
   const {
     aiRailOpen,
     activeScreen,
@@ -287,6 +287,153 @@ export function CopilotRail() {
 
   if (!mounted) return null;
 
+  const railContent = (
+    <>
+      {!embedded && (
+        <div
+          className="px-4 py-3 flex items-center gap-2 shrink-0"
+          style={{ borderBottom: "1px solid var(--outline-secondary)" }}
+        >
+          <Sparkles size={14} style={{ color: "var(--ai-accent)" }} />
+          <span className="heading-sm" style={{ color: "var(--text-primary)" }}>
+            AI Copilot
+          </span>
+          <span
+            className="action-xs px-1.5 py-0.5 ml-auto"
+            style={{
+              background: "var(--ai-accent-soft)",
+              color: "var(--ai-accent)",
+              borderRadius: "var(--radius-xl)",
+            }}
+          >
+            Contextual
+          </span>
+        </div>
+      )}
+
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 flex flex-col gap-3">
+        {insights.map((insight) => (
+          <InsightCard key={insight.id} insight={insight} onOpenPreset={openAiPreset} />
+        ))}
+
+        <div className="mt-2">
+          <p className="label-sm mb-2" style={{ color: "var(--text-secondary)" }}>
+            Ask about this view
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {prompts.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                disabled={thinking}
+                onClick={() => void handleSuggestedPrompt(prompt)}
+                className="flex items-center gap-2 px-3 py-2 text-left body-sm delight-press delight-focus disabled:opacity-50"
+                style={{
+                  border: "1px solid var(--ai-border)",
+                  color: "var(--text-secondary)",
+                  background: "var(--canvas-surface)",
+                  borderRadius: "var(--radius-sm)",
+                }}
+              >
+                <ChevronRight size={11} style={{ color: "var(--ai-accent)" }} />
+                {prompt}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="shrink-0 px-3 pt-2 pb-2 flex flex-col gap-2 border-t"
+        style={{ borderColor: "var(--outline-secondary)" }}
+      >
+        <p className="label-sm" style={{ color: "var(--text-secondary)" }}>
+          Chat
+        </p>
+        {chatMessages.length > 0 && (
+          <div
+            className="max-h-[140px] overflow-y-auto space-y-2 rounded-md px-2 py-2"
+            style={{ background: "var(--brand-100)" }}
+          >
+            {chatMessages.map((m) => (
+              <div
+                key={m.id}
+                className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
+              >
+                <div
+                  className={cn(
+                    "max-w-[95%] rounded-lg px-2.5 py-1.5 body-sm whitespace-pre-wrap break-words",
+                    m.role === "user"
+                      ? "rounded-br-sm"
+                      : "rounded-bl-sm",
+                  )}
+                  style={{
+                    background:
+                      m.role === "user" ? "var(--ai-accent-soft)" : "var(--canvas-surface)",
+                    color: m.role === "user" ? "var(--ai-accent)" : "var(--text-primary)",
+                    border:
+                      m.role === "assistant" ? "1px solid var(--ai-border)" : undefined,
+                  }}
+                >
+                  {m.content}
+                </div>
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
+        )}
+        <form onSubmit={(e) => void handleChatSubmit(e)} className="flex gap-2 items-end">
+          <textarea
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void handleChatSubmit();
+              }
+            }}
+            rows={2}
+            placeholder="Ask a question…"
+            disabled={thinking}
+            className="flex-1 min-w-0 resize-none rounded-md px-2.5 py-2 body-sm outline-none focus-visible:ring-2 disabled:opacity-50"
+            style={{
+              background: "var(--canvas-surface)",
+              border: "1px solid var(--ai-border)",
+              color: "var(--text-primary)",
+              boxShadow: "none",
+            }}
+            aria-label="Message to AI Copilot"
+          />
+          <button
+            type="submit"
+            disabled={thinking || !chatInput.trim()}
+            className="shrink-0 flex items-center justify-center w-10 h-10 rounded-md delight-press delight-focus disabled:opacity-40"
+            style={{
+              background: "var(--ai-accent)",
+              color: "var(--text-inverse)",
+            }}
+            aria-label="Send message"
+          >
+            {thinking ? <Loader2 size={18} className="animate-spin" /> : <SendHorizontal size={18} />}
+          </button>
+        </form>
+      </div>
+
+      <div
+        className="px-3 py-2.5 shrink-0"
+        style={{ borderTop: "1px solid var(--outline-secondary)" }}
+      >
+        <p className="body-sm text-center" style={{ color: "var(--text-secondary)" }}>
+          {footerText}
+        </p>
+      </div>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="h-full flex flex-col">{railContent}</div>;
+  }
+
   return (
     <AnimatePresence mode="wait">
       {aiRailOpen && (
@@ -301,142 +448,7 @@ export function CopilotRail() {
             background: "var(--canvas-surface)",
           }}
         >
-          <div
-            className="px-4 py-3 flex items-center gap-2 shrink-0"
-            style={{ borderBottom: "1px solid var(--outline-secondary)" }}
-          >
-            <Sparkles size={14} style={{ color: "var(--ai-accent)" }} />
-            <span className="heading-sm" style={{ color: "var(--text-primary)" }}>
-              AI Copilot
-            </span>
-            <span
-              className="action-xs px-1.5 py-0.5 ml-auto"
-              style={{
-                background: "var(--ai-accent-soft)",
-                color: "var(--ai-accent)",
-                borderRadius: "var(--radius-xl)",
-              }}
-            >
-              Contextual
-            </span>
-          </div>
-
-          <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 flex flex-col gap-3">
-            {insights.map((insight) => (
-              <InsightCard key={insight.id} insight={insight} onOpenPreset={openAiPreset} />
-            ))}
-
-            <div className="mt-2">
-              <p className="label-sm mb-2" style={{ color: "var(--text-secondary)" }}>
-                Ask about this view
-              </p>
-              <div className="flex flex-col gap-1.5">
-                {prompts.map((prompt) => (
-                  <button
-                    key={prompt}
-                    type="button"
-                    disabled={thinking}
-                    onClick={() => void handleSuggestedPrompt(prompt)}
-                    className="flex items-center gap-2 px-3 py-2 text-left body-sm delight-press delight-focus disabled:opacity-50"
-                    style={{
-                      border: "1px solid var(--ai-border)",
-                      color: "var(--text-secondary)",
-                      background: "var(--canvas-surface)",
-                      borderRadius: "var(--radius-sm)",
-                    }}
-                  >
-                    <ChevronRight size={11} style={{ color: "var(--ai-accent)" }} />
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="shrink-0 px-3 pt-2 pb-2 flex flex-col gap-2 border-t"
-            style={{ borderColor: "var(--outline-secondary)" }}
-          >
-            <p className="label-sm" style={{ color: "var(--text-secondary)" }}>
-              Chat
-            </p>
-            {chatMessages.length > 0 && (
-              <div
-                className="max-h-[140px] overflow-y-auto space-y-2 rounded-md px-2 py-2"
-                style={{ background: "var(--brand-100)" }}
-              >
-                {chatMessages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
-                  >
-                    <div
-                      className={cn(
-                        "max-w-[95%] rounded-lg px-2.5 py-1.5 body-sm whitespace-pre-wrap break-words",
-                        m.role === "user"
-                          ? "rounded-br-sm"
-                          : "rounded-bl-sm",
-                      )}
-                      style={{
-                        background:
-                          m.role === "user" ? "var(--ai-accent-soft)" : "var(--canvas-surface)",
-                        color: m.role === "user" ? "var(--ai-accent)" : "var(--text-primary)",
-                        border:
-                          m.role === "assistant" ? "1px solid var(--ai-border)" : undefined,
-                      }}
-                    >
-                      {m.content}
-                    </div>
-                  </div>
-                ))}
-                <div ref={chatEndRef} />
-              </div>
-            )}
-            <form onSubmit={(e) => void handleChatSubmit(e)} className="flex gap-2 items-end">
-              <textarea
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    void handleChatSubmit();
-                  }
-                }}
-                rows={2}
-                placeholder="Ask a question…"
-                disabled={thinking}
-                className="flex-1 min-w-0 resize-none rounded-md px-2.5 py-2 body-sm outline-none focus-visible:ring-2 disabled:opacity-50"
-                style={{
-                  background: "var(--canvas-surface)",
-                  border: "1px solid var(--ai-border)",
-                  color: "var(--text-primary)",
-                  boxShadow: "none",
-                }}
-                aria-label="Message to AI Copilot"
-              />
-              <button
-                type="submit"
-                disabled={thinking || !chatInput.trim()}
-                className="shrink-0 flex items-center justify-center w-10 h-10 rounded-md delight-press delight-focus disabled:opacity-40"
-                style={{
-                  background: "var(--ai-accent)",
-                  color: "var(--text-inverse)",
-                }}
-                aria-label="Send message"
-              >
-                {thinking ? <Loader2 size={18} className="animate-spin" /> : <SendHorizontal size={18} />}
-              </button>
-            </form>
-          </div>
-
-          <div
-            className="px-3 py-2.5 shrink-0"
-            style={{ borderTop: "1px solid var(--outline-secondary)" }}
-          >
-            <p className="body-sm text-center" style={{ color: "var(--text-secondary)" }}>
-              {footerText}
-            </p>
-          </div>
+          {railContent}
         </motion.aside>
       )}
     </AnimatePresence>

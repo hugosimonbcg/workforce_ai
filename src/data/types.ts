@@ -33,6 +33,8 @@ export interface LaborStandard {
   skill: string;
 }
 
+export type ShiftType = "permanent-template" | "agency" | "overtime" | "reserve";
+
 export interface ShiftBlock {
   id: string;
   day: number;
@@ -43,6 +45,8 @@ export interface ShiftBlock {
   workerCount: number;
   label: string;
   costPerHour: number;
+  shiftType: ShiftType;
+  locked: boolean;
 }
 
 export interface Worker {
@@ -52,6 +56,8 @@ export interface Worker {
   maxHoursWeek: number;
   team: string;
   contractType: "permanent" | "agency";
+  templateShiftIds?: string[];
+  availableDays?: number[];
 }
 
 export interface RosterAssignment {
@@ -113,6 +119,7 @@ export interface Scenario {
   rosterAssignments: RosterAssignment[];
   rosterExceptions: RosterException[];
   valuLevers: ValueLever[];
+  constraints: PlanConstraints;
 }
 
 export interface PlanContext {
@@ -139,4 +146,67 @@ export interface ConfidenceArea {
   area: string;
   level: "high" | "medium" | "low";
   note: string;
+}
+
+// ─── Plan Constraints ───────────────────────────────────────────────────────
+
+export interface PlanConstraints {
+  otCapPercent: number;
+  agencyCapPercent: number;
+  slaMissTarget: number;
+  shiftMinHours: number;
+  shiftMaxHours: number;
+  shiftStartEarliest: number;
+  shiftStartLatest: number;
+  maxConsecutiveDays: number;
+}
+
+// ─── Coverage Layer ─────────────────────────────────────────────────────────
+
+export type CoverageSeverity = "covered" | "tight" | "understaffed" | "critical" | "overstaffed";
+
+export type CoverageMode = "gap" | "demand" | "supply" | "risk";
+
+export interface CoverageBucket {
+  day: number;
+  hour: number;
+  skill: string;
+  requiredHours: number;
+  plannedHours: number;
+  assignedHours: number;
+  gap: number;
+  surplus: number;
+  severity: CoverageSeverity;
+  blockers: string[];
+}
+
+export interface CoverageIssue {
+  id: string;
+  day: number;
+  hour: number;
+  skill: string;
+  type: "understaffed" | "critical-gap" | "skill-shortage" | "agency-cap" | "ot-cap";
+  severity: "high" | "medium" | "low";
+  description: string;
+  suggestedAction: string;
+}
+
+export interface CoverageSummary {
+  totalGapHours: number;
+  totalSurplusHours: number;
+  criticalWindows: number;
+  issuesBySeverity: { high: number; medium: number; low: number };
+  coveragePercent: number;
+}
+
+export interface OperationalIssue {
+  id: string;
+  type: "agency-pending" | "skill-gap" | "cert-expiry" | "leave-overlap" | "ot-creep" | "rule-violation";
+  severity: "high" | "medium" | "low";
+  title: string;
+  description: string;
+  suggestedAction: string;
+  relatedDay?: number;
+  relatedSkill?: string;
+  relatedWorkerId?: string;
 }

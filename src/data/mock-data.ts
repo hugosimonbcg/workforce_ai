@@ -1,4 +1,4 @@
-import { PlanContext, Facility, Activity, DemandCell, FixedWorkload, LaborStandard, Worker, ShiftBlock, RosterAssignment, RosterException, Scenario, ScenarioKPIs, ValueLever, EvidenceInput, ConfidenceArea } from "./types";
+import { PlanContext, Facility, Activity, DemandCell, FixedWorkload, LaborStandard, Worker, ShiftBlock, RosterAssignment, RosterException, Scenario, ScenarioKPIs, ValueLever, EvidenceInput, ConfidenceArea, PlanConstraints, OperationalIssue } from "./types";
 
 // ─── Facility ───────────────────────────────────────────────────────────────
 const facility: Facility = {
@@ -109,34 +109,29 @@ function generateOptimizedShifts(): ShiftBlock[] {
     const isWeekend = day >= 5;
     const peakDay = day >= 1 && day <= 4;
 
-    // Receiving — early morning
-    shifts.push({ id: `S${++id}`, day, skill: "receiver", startHour: 6, endHour: 14, duration: 8, workerCount: isWeekend ? 1 : 2, label: "RCV-AM", costPerHour: 22 });
+    shifts.push({ id: `S${++id}`, day, skill: "receiver", startHour: 6, endHour: 14, duration: 8, workerCount: isWeekend ? 1 : 2, label: "RCV-AM", costPerHour: 22, shiftType: "permanent-template", locked: false });
     if (peakDay) {
-      shifts.push({ id: `S${++id}`, day, skill: "receiver", startHour: 7, endHour: 12, duration: 5, workerCount: 1, label: "RCV-Mid", costPerHour: 22 });
+      shifts.push({ id: `S${++id}`, day, skill: "receiver", startHour: 7, endHour: 12, duration: 5, workerCount: 1, label: "RCV-Mid", costPerHour: 22, shiftType: "permanent-template", locked: false });
     }
 
-    // Putaway — follows receiving
-    shifts.push({ id: `S${++id}`, day, skill: "putaway-op", startHour: 7, endHour: 15, duration: 8, workerCount: isWeekend ? 1 : 2, label: "PUT-AM", costPerHour: 21 });
+    shifts.push({ id: `S${++id}`, day, skill: "putaway-op", startHour: 7, endHour: 15, duration: 8, workerCount: isWeekend ? 1 : 2, label: "PUT-AM", costPerHour: 21, shiftType: "permanent-template", locked: false });
 
-    // Picking — key bottleneck, optimized with earlier start
-    shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 7, endHour: 15, duration: 8, workerCount: isWeekend ? 2 : 4, label: "PCK-Early", costPerHour: 24 });
+    shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 7, endHour: 15, duration: 8, workerCount: isWeekend ? 2 : 4, label: "PCK-Early", costPerHour: 24, shiftType: "permanent-template", locked: true });
     if (!isWeekend) {
-      shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 10, endHour: 18, duration: 8, workerCount: peakDay ? 3 : 2, label: "PCK-Mid", costPerHour: 24 });
+      shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 10, endHour: 18, duration: 8, workerCount: peakDay ? 3 : 2, label: "PCK-Mid", costPerHour: 24, shiftType: peakDay ? "permanent-template" : "agency", locked: false });
     }
     if (peakDay) {
-      shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 14, endHour: 20, duration: 6, workerCount: 2, label: "PCK-Late", costPerHour: 26 });
+      shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 14, endHour: 20, duration: 6, workerCount: 2, label: "PCK-Late", costPerHour: 26, shiftType: "overtime", locked: false });
     }
 
-    // Packing — follows picking peak
-    shifts.push({ id: `S${++id}`, day, skill: "packer", startHour: 8, endHour: 16, duration: 8, workerCount: isWeekend ? 1 : 3, label: "PAK-AM", costPerHour: 22 });
+    shifts.push({ id: `S${++id}`, day, skill: "packer", startHour: 8, endHour: 16, duration: 8, workerCount: isWeekend ? 1 : 3, label: "PAK-AM", costPerHour: 22, shiftType: "permanent-template", locked: false });
     if (!isWeekend) {
-      shifts.push({ id: `S${++id}`, day, skill: "packer", startHour: 12, endHour: 20, duration: 8, workerCount: peakDay ? 2 : 1, label: "PAK-PM", costPerHour: 22 });
+      shifts.push({ id: `S${++id}`, day, skill: "packer", startHour: 12, endHour: 20, duration: 8, workerCount: peakDay ? 2 : 1, label: "PAK-PM", costPerHour: 22, shiftType: peakDay ? "permanent-template" : "agency", locked: false });
     }
 
-    // Outbound loading — afternoon
-    shifts.push({ id: `S${++id}`, day, skill: "loader", startHour: 12, endHour: 20, duration: 8, workerCount: isWeekend ? 1 : 2, label: "LDG-PM", costPerHour: 23 });
+    shifts.push({ id: `S${++id}`, day, skill: "loader", startHour: 12, endHour: 20, duration: 8, workerCount: isWeekend ? 1 : 2, label: "LDG-PM", costPerHour: 23, shiftType: "permanent-template", locked: false });
     if (peakDay) {
-      shifts.push({ id: `S${++id}`, day, skill: "loader", startHour: 15, endHour: 21, duration: 6, workerCount: 1, label: "LDG-Late", costPerHour: 25 });
+      shifts.push({ id: `S${++id}`, day, skill: "loader", startHour: 15, endHour: 21, duration: 6, workerCount: 1, label: "LDG-Late", costPerHour: 25, shiftType: "overtime", locked: false });
     }
   }
   return shifts;
@@ -149,17 +144,17 @@ function generateBaselineShifts(): ShiftBlock[] {
   for (let day = 0; day < 7; day++) {
     const isWeekend = day >= 5;
 
-    shifts.push({ id: `S${++id}`, day, skill: "receiver", startHour: 7, endHour: 15, duration: 8, workerCount: isWeekend ? 1 : 2, label: "RCV-Std", costPerHour: 22 });
-    shifts.push({ id: `S${++id}`, day, skill: "putaway-op", startHour: 8, endHour: 16, duration: 8, workerCount: isWeekend ? 1 : 2, label: "PUT-Std", costPerHour: 21 });
-    shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 9, endHour: 17, duration: 8, workerCount: isWeekend ? 2 : 5, label: "PCK-Std", costPerHour: 24 });
+    shifts.push({ id: `S${++id}`, day, skill: "receiver", startHour: 7, endHour: 15, duration: 8, workerCount: isWeekend ? 1 : 2, label: "RCV-Std", costPerHour: 22, shiftType: "permanent-template", locked: false });
+    shifts.push({ id: `S${++id}`, day, skill: "putaway-op", startHour: 8, endHour: 16, duration: 8, workerCount: isWeekend ? 1 : 2, label: "PUT-Std", costPerHour: 21, shiftType: "permanent-template", locked: false });
+    shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 9, endHour: 17, duration: 8, workerCount: isWeekend ? 2 : 5, label: "PCK-Std", costPerHour: 24, shiftType: "permanent-template", locked: false });
     if (!isWeekend) {
-      shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 13, endHour: 21, duration: 8, workerCount: 2, label: "PCK-OT", costPerHour: 32 });
+      shifts.push({ id: `S${++id}`, day, skill: "picker", startHour: 13, endHour: 21, duration: 8, workerCount: 2, label: "PCK-OT", costPerHour: 32, shiftType: "overtime", locked: false });
     }
-    shifts.push({ id: `S${++id}`, day, skill: "packer", startHour: 9, endHour: 17, duration: 8, workerCount: isWeekend ? 1 : 3, label: "PAK-Std", costPerHour: 22 });
+    shifts.push({ id: `S${++id}`, day, skill: "packer", startHour: 9, endHour: 17, duration: 8, workerCount: isWeekend ? 1 : 3, label: "PAK-Std", costPerHour: 22, shiftType: "permanent-template", locked: false });
     if (!isWeekend) {
-      shifts.push({ id: `S${++id}`, day, skill: "packer", startHour: 14, endHour: 22, duration: 8, workerCount: 2, label: "PAK-OT", costPerHour: 30 });
+      shifts.push({ id: `S${++id}`, day, skill: "packer", startHour: 14, endHour: 22, duration: 8, workerCount: 2, label: "PAK-OT", costPerHour: 30, shiftType: "overtime", locked: false });
     }
-    shifts.push({ id: `S${++id}`, day, skill: "loader", startHour: 13, endHour: 21, duration: 8, workerCount: isWeekend ? 1 : 3, label: "LDG-Std", costPerHour: 23 });
+    shifts.push({ id: `S${++id}`, day, skill: "loader", startHour: 13, endHour: 21, duration: 8, workerCount: isWeekend ? 1 : 3, label: "LDG-Std", costPerHour: 23, shiftType: "permanent-template", locked: false });
   }
   return shifts;
 }
@@ -300,6 +295,97 @@ function generateRoster(shifts: ShiftBlock[], workers: Worker[]): { assignments:
   return { assignments, exceptions };
 }
 
+// ─── Constraints ────────────────────────────────────────────────────────────
+export const defaultConstraints: PlanConstraints = {
+  otCapPercent: 8,
+  agencyCapPercent: 15,
+  slaMissTarget: 2,
+  shiftMinHours: 5,
+  shiftMaxHours: 10,
+  shiftStartEarliest: 6,
+  shiftStartLatest: 15,
+  maxConsecutiveDays: 6,
+};
+
+// ─── Operational Issues ─────────────────────────────────────────────────────
+export const operationalIssues: OperationalIssue[] = [
+  {
+    id: "OI-001",
+    type: "agency-pending",
+    severity: "high",
+    title: "Agency Picker A — Wed confirmation pending",
+    description: "Agency Picker A is scheduled for PCK-Mid on Wednesday but confirmation has not been received. If unavailable, the Wed 10:00–18:00 picking window will be short by 1 worker.",
+    suggestedAction: "Follow up with agency by EOD Tuesday or pre-assign W016 (Amy Wilson) as fallback",
+    relatedDay: 2,
+    relatedSkill: "picker",
+    relatedWorkerId: "W019",
+  },
+  {
+    id: "OI-002",
+    type: "skill-gap",
+    severity: "medium",
+    title: "Thomas Wright — forklift cert expired",
+    description: "Thomas Wright (W011) is assigned LDG-Late Thu but his forklift certification lapsed. He cannot operate the dock loader without supervision.",
+    suggestedAction: "Pair with Jessica Lee (certified) or reassign to manual loading tasks",
+    relatedDay: 3,
+    relatedSkill: "loader",
+    relatedWorkerId: "W011",
+  },
+  {
+    id: "OI-003",
+    type: "leave-overlap",
+    severity: "medium",
+    title: "David Kim leave during peak outbound",
+    description: "David Kim (W003, picker/receiver) is on leave Thu–Fri, overlapping with the highest outbound demand window. Picker coverage drops to minimum on Thursday afternoon.",
+    suggestedAction: "Activate Agency Picker B for Thu–Fri or shift Olivia Davis from packing to picking",
+    relatedDay: 3,
+    relatedSkill: "picker",
+    relatedWorkerId: "W003",
+  },
+  {
+    id: "OI-004",
+    type: "ot-creep",
+    severity: "medium",
+    title: "Marcus Johnson nearing weekly OT threshold",
+    description: "Marcus Johnson (W001) will reach 38h by end of Thursday. Any Friday assignment exceeding 2h triggers overtime rate. Currently assigned PCK-Mid Fri (8h).",
+    suggestedAction: "Reassign to PCK-Late (6h) or keep on reserve for Friday",
+    relatedDay: 4,
+    relatedWorkerId: "W001",
+  },
+  {
+    id: "OI-005",
+    type: "cert-expiry",
+    severity: "low",
+    title: "Anna Patel training slot conflicts with putaway shift",
+    description: "Anna Patel (W008) has mandatory safety training on Wednesday, overlapping with her PUT-AM shift. Training takes priority but leaves the putaway slot unfilled.",
+    suggestedAction: "Assign Robert Martinez (W009, putaway/receiver) to cover PUT-AM Wed",
+    relatedDay: 2,
+    relatedSkill: "putaway-op",
+    relatedWorkerId: "W008",
+  },
+  {
+    id: "OI-006",
+    type: "rule-violation",
+    severity: "low",
+    title: "Weekend loader shift has single-person coverage",
+    description: "Saturday and Sunday LDG-PM shifts have only 1 loader assigned. Site policy recommends minimum 2 for safety on dock operations.",
+    suggestedAction: "Add Agency Loader A to weekend LDG-PM or cross-train a picker for backup",
+    relatedDay: 5,
+    relatedSkill: "loader",
+  },
+  {
+    id: "OI-007",
+    type: "agency-pending",
+    severity: "low",
+    title: "Agency Packer A availability unconfirmed for Thu",
+    description: "Agency Packer A (W021) is scheduled for PAK-PM Thu but has not confirmed. Low risk since permanent packers can absorb if needed.",
+    suggestedAction: "Confirm by Wed EOD; fallback is Sophie Clark (W024, packer/receiver)",
+    relatedDay: 3,
+    relatedSkill: "packer",
+    relatedWorkerId: "W021",
+  },
+];
+
 // ─── Scenarios ──────────────────────────────────────────────────────────────
 const optimizedShifts = generateOptimizedShifts();
 const baselineShifts = generateBaselineShifts();
@@ -358,6 +444,7 @@ const scenarios: Scenario[] = [
     rosterAssignments: baseRoster,
     rosterExceptions: baseExceptions,
     valuLevers: [],
+    constraints: { ...defaultConstraints, otCapPercent: 13, agencyCapPercent: 20 },
   },
   {
     id: "optimized",
@@ -371,6 +458,7 @@ const scenarios: Scenario[] = [
     rosterAssignments: optRoster,
     rosterExceptions: optExceptions,
     valuLevers: optimizedValueLevers,
+    constraints: defaultConstraints,
   },
   {
     id: "demand-spike",
@@ -384,6 +472,7 @@ const scenarios: Scenario[] = [
     rosterAssignments: optRoster,
     rosterExceptions: optExceptions,
     valuLevers: optimizedValueLevers.map(v => ({ ...v, annualizedSaving: Math.round(v.annualizedSaving * 0.7) })),
+    constraints: { ...defaultConstraints, agencyCapPercent: 20 },
   },
   {
     id: "reduced-pickers",
@@ -397,6 +486,7 @@ const scenarios: Scenario[] = [
     rosterAssignments: optRoster,
     rosterExceptions: optExceptions,
     valuLevers: optimizedValueLevers.map(v => ({ ...v, annualizedSaving: Math.round(v.annualizedSaving * 0.65) })),
+    constraints: { ...defaultConstraints, agencyCapPercent: 20 },
   },
   {
     id: "tight-ot",
@@ -410,6 +500,7 @@ const scenarios: Scenario[] = [
     rosterAssignments: optRoster,
     rosterExceptions: optExceptions,
     valuLevers: optimizedValueLevers.map(v => ({ ...v, annualizedSaving: Math.round(v.annualizedSaving * 0.85) })),
+    constraints: { ...defaultConstraints, otCapPercent: 5, agencyCapPercent: 18 },
   },
   {
     id: "reduced-agency",
@@ -423,6 +514,7 @@ const scenarios: Scenario[] = [
     rosterAssignments: optRoster,
     rosterExceptions: optExceptions,
     valuLevers: optimizedValueLevers.map(v => ({ ...v, annualizedSaving: Math.round(v.annualizedSaving * 0.75) })),
+    constraints: { ...defaultConstraints, agencyCapPercent: 6, otCapPercent: 10 },
   },
 ];
 
